@@ -1,16 +1,18 @@
-var express = require("express");
-var app = express();
-var cors = require('cors')
-let routes = require('./routes/projectRoutes');
+const express  = require("express");
+const connectDb = require('./config/db');
+const app = express();
 
-app.use(express.static(__dirname+'/public'))
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cors())
-app.use('/api/projects', routes)
+// Connect Database
+connectDb();
 
-var port = process.env.port || 3001;
+//Init MiddleWare
+app.use(express.json({extended: false}));
 
-app.listen(port,()=>{
-    console.log("App listening to: "+port)
+app.use('/api/users', require('./routes/api/users'));
+app.use('/api/auth', require('./routes/api/auth'));
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, ()=>{
+    console.log(`Server Started on port ${PORT}`)
 })
