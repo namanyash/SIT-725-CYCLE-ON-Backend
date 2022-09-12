@@ -9,7 +9,10 @@ connectDb();
 app.use(express.json({extended: false}));
 
 app.use('/api/users', require('./routes/api/users'));
-app.use('/api/auth', require('./routes/api/auth'));
+app.use('/api/admins', require('./routes/api/admins'));
+app.use('/api/adminActions', require('./routes/api/adminActions'));
+app.use('/api/locations', require('./routes/api/locations'));
+app.use('/api/rides', require('./routes/api/ride'));
 
 const PORT = process.env.PORT || 5000;
 
