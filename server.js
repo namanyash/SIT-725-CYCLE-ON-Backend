@@ -8,6 +8,9 @@ connectDb();
 //Init MiddleWare
 app.use(express.json({ extended: false }));
 
+const cors = require("cors");
+
+app.use(cors({ origin: true }));
 app.use("/api/users", require("./routes/api/users"));
 app.use("/api/admins", require("./routes/api/admins"));
 app.use("/api/adminActions", require("./routes/api/adminActions"));

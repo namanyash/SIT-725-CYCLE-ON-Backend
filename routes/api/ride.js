@@ -34,11 +34,17 @@ router.put(
           ],
         });
       }
-      let user = await User.findById(req.user.id).select("activeRide");
+      let user = await User.findById(req.user.id).select("activeRide balance");
       if (user && user.activeRide && user.activeRide.bikeId) {
         return res
           .status(400)
           .json({ errors: [{ msg: `User Already has an active ride.` }] });
+      }
+
+      if (user.balance < 10) {
+        return res
+          .status(400)
+          .json({ errors: [{ msg: `Balance less than $10` }] });
       }
 
       let location_updated = await CycleonLocationModel.findOneAndUpdate(
@@ -132,12 +138,22 @@ router.put(
       );
       ride.endTime = Date.now();
       ride.endLocation = locationName;
-      console.log(ride);
+      ride.fare = (
+        ((ride.endTime - ride.startTime) * process.env.RATE_PER_HOUR) /
+        3600000
+      ).toFixed(2);
       user = await User.findByIdAndUpdate(
         req.user.id,
         { $push: { rideHistory: ride } },
         { new: true }
       ).select("-password");
+      user = await User.findOneAndUpdate(
+        { _id: req.user.id },
+        { $inc: { balance: -ride.fare } },
+        { new: true }
+      ).select("-password");
+
+      res.send(user);
       user = await User.findByIdAndUpdate(
         req.user.id,
         {
@@ -152,7 +168,7 @@ router.put(
         { new: true }
       ).select("-password");
 
-      return res.send({ location, user });
+      return res.send({ location, user, ride });
     } catch (err) {
       console.error(err.message);
       return res.status(500).send("Server Error");

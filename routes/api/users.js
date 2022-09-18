@@ -253,7 +253,7 @@ router.put(
     }
     user = await User.findOneAndUpdate(
       { _id: req.user.id },
-      { $inc: { balance: -valueToSubtract } },
+      { $inc: { balance: -valueToSubtract.toFixed(2) } },
       { new: true }
     ).select("-password -rideHistory -activeRide");
     res.send(user);

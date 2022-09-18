@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
 const CycleonLocationModel = require("../../models/CycleonLocations");
-// const jwt = require('jsonwebtoken');
-// const config =  require('config');
 const adminAuth = require("../../middleware/adminAuth");
 const idGenerator = require("../../helper/idGenerator");
 
