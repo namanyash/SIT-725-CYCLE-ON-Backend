@@ -97,7 +97,7 @@ router.post(
         });
       }
       location = await CycleonLocationModel.findOneAndUpdate(
-        { _location: locationName },
+        { locationName: locationName },
         {
           $push: { bikes: { name, description, _id: idGenerator.makeid(24) } },
         },
@@ -141,7 +141,7 @@ router.delete(
         });
       }
       let location_updated = await CycleonLocationModel.findOneAndUpdate(
-        { _location: locationName },
+        { locationName: locationName },
         { $pull: { bikes: { _id: bikeId } } },
         { new: true, passRawResult: true }
       );
@@ -150,7 +150,7 @@ router.delete(
           .status(400)
           .json({ errors: [{ msg: `Bike does not exist` }] });
       }
-      res.send(location);
+      res.send(location_updated);
     } catch (err) {
       console.error(err.message);
       return res.status(500).send("Server Error");

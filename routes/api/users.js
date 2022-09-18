@@ -221,7 +221,7 @@ router.put(
       { _id: req.user.id },
       { $inc: { balance: valueToAdd } },
       { new: true }
-    ).select("balance");
+    ).select("-password -rideHistory -activeRide");
     res.send(user);
   }
 );
@@ -255,7 +255,7 @@ router.put(
       { _id: req.user.id },
       { $inc: { balance: -valueToSubtract } },
       { new: true }
-    ).select("balance");
+    ).select("-password -rideHistory -activeRide");
     res.send(user);
   }
 );
