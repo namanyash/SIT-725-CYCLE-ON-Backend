@@ -3,7 +3,8 @@ const router =  express.Router();
 const {check, validationResult}  = require('express-validator');
 const CycleonLocationModel = require("../../models/CycleonLocations");
 const auth = require('../../middleware/auth');
-const User = require("../../models/User");
+const User = require("../../models/User")
+
 
 
 // @route       POST /api/rides/bookRide
@@ -35,9 +36,10 @@ router.put('/bookRide',[
         }
 
         const bike = location.bikes.find(bike => bike._id === bikeId);
-        user = await User.findByIdAndUpdate(req.user.id, {activeRide: {startTime: Date.now(), bikeId: bike._id, description: bike.description}}, {new: true})
+        console.log(bike)
+        user = await User.findByIdAndUpdate(req.user.id, {activeRide: {startTime: Date.now(), bikeId: bike._id, description: bike.description, startLocation: locationName, bikeName: bike.name}}, {new: true}).select('-password')
 
-        return res.send({location, user});
+        return res.send({location_updated, user});
         
     } catch(err) {
         console.error(err.message);
@@ -67,12 +69,13 @@ router.put('/endRide',[
         if(!user || !user.activeRide || !user.activeRide.bikeId){
             return res.status(400).json({errors:[{msg: `User has no active rides`}]});
         }
-        const ride = user.activeRide;
-        console.log(ride)
-        location = await CycleonLocationModel.findOneAndUpdate({locationName}, { $push: { bikes: {name: ride.bikeName, description: ride.bikeDescription, _id: ride.bikeId}} },  {new: true, passRawResult : true})
+        let ride = user.activeRide;
+        location = await CycleonLocationModel.findOneAndUpdate({locationName}, { $push: { bikes: {name: ride.bikeName, description: ride.description, _id: ride.bikeId}} },  {new: true, passRawResult : true})
         ride.endTime = Date.now();
-        user = await User.findByIdAndUpdate(req.user.id, {$push: {rideHistory: ride}}, {new: true})
-        user = await User.findByIdAndUpdate(req.user.id, {activeRide: {startTime: null, bikeId: null, description: null}}, {new: true})
+        ride.endLocation = locationName;
+        console.log(ride)
+        user = await User.findByIdAndUpdate(req.user.id, {$push: {rideHistory: ride}}, {new: true}).select('-password')
+        user = await User.findByIdAndUpdate(req.user.id, {activeRide: {startTime: null, bikeId: null, description: null, startLocation: null, bikeName: null}}, {new: true}).select('-password')
 
         return res.send({location, user});
         
