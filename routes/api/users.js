@@ -343,15 +343,13 @@ router.post(
       }
       if (passwordReset.expiresAt < Date.now()) {
         await PasswordReset.deleteMany({ userId: userId });
-        return res
-          .status(400)
-          .json({
-            errors: [
-              {
-                msg: "Password reset has expired. Please create a new request.",
-              },
-            ],
-          });
+        return res.status(400).json({
+          errors: [
+            {
+              msg: "Password reset has expired. Please create a new request.",
+            },
+          ],
+        });
       }
       const isMatch = await bcrypt.compare(
         resetString,

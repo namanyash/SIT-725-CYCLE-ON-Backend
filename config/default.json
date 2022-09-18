@@ -1,6 +1,5 @@
 {
-    "mongoURI": "mongodb+srv://namanyash:admin@sit-725-gp-db.gdz2oll.mongodb.net/?retryWrites=true&w=majority",
-    "jwtSecret":"CycleOn",
-    "jwtSecretAdmin":"CycleOnAdmin"
-
+  "mongoURI": "mongodb+srv://namanyash:admin@sit-725-gp-db.gdz2oll.mongodb.net/?retryWrites=true&w=majority",
+  "jwtSecret": "CycleOn",
+  "jwtSecretAdmin": "CycleOnAdmin"
 }
