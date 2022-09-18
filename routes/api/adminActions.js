@@ -163,10 +163,10 @@ router.delete(
 // @access      Private - only accessible to the existing admins
 // @parameters  locationName(String)
 router.delete("/deleteLocation", adminAuth, async (req, res) => {
-  const { locationName, bikeId } = req.body;
+  const { locationName } = req.body;
   try {
     let location = await CycleonLocationModel.findOneAndDelete({
-      locationName,
+      locationName: locationName,
     });
     if (!location) {
       return res.status(400).json({
