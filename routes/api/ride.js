@@ -112,7 +112,7 @@ router.put(
 // @route       POST /api/rides/endRide
 // @desc        Allows users end rides
 // @access      Private
-// @parameters  locationName(String), bikeId(String)
+// @parameters  NONE
 router.put("/endRide", auth, async (req, res) => {
   try {
     let user = await User.findById(req.user.id).select("activeRide");
@@ -156,20 +156,6 @@ router.put("/endRide", auth, async (req, res) => {
       },
       { new: true }
     ).select("-password");
-
-    // user = await User.findByIdAndUpdate(
-    //   req.user.id,
-    //   {
-    //     activeRide: {
-    //       startTime: null,
-    //       bikeId: null,
-    //       description: null,
-    //       startLocation: null,
-    //       bikeName: null,
-    //     },
-    //   },
-    //   { new: true }
-    // ).select("-password");
 
     return res.send({ endRideLocation: location, user, ride });
   } catch (err) {
