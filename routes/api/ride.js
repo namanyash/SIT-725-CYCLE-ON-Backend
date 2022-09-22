@@ -31,7 +31,7 @@ router.put(
     const { startLocationName, endLocationName, bikeId } = req.body;
     try {
       let startLocation = await CycleonLocationModel.findOne({
-        startLocationName,
+        locationName: startLocationName,
       });
       if (!startLocation) {
         return res.status(400).json({
@@ -44,7 +44,7 @@ router.put(
       }
 
       let endLocation = await CycleonLocationModel.findOne({
-        endLocationName,
+        locationName: endLocationName,
       });
       if (!endLocation) {
         return res.status(400).json({
