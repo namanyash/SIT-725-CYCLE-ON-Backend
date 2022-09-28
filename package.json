@@ -1,5 +1,5 @@
 {
-  "name": "sit725-2022-t2-prac5",
+  "name": "sit725-cycle-on-project",
   "description": "",
   "version": "1.0.0",
   "main": "server.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/namanyash/sit725-2022-t2-prac5.git"
+    "url": "git+https://github.com/namanyash/SIT-725-CYCLE-ON-Backend.git"
   },
   "author": "Naman Yash",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/namanyash/sit725-2022-t2-prac5/issues"
+    "url": "https://github.com/namanyash/SIT-725-CYCLE-ON-Backend/issues"
   },
-  "homepage": "https://github.com/namanyash/sit725-2022-t2-prac5#readme",
+  "homepage": "https://github.com/namanyash/SIT-725-CYCLE-ON-Backend#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "chai": "^4.3.6",

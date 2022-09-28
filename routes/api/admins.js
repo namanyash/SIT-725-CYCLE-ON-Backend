@@ -14,6 +14,7 @@ const adminAuth = require("../../middleware/adminAuth");
 router.post(
   "/register",
   [
+    // validations
     check("email", "Please include a valid email").isEmail(),
     check(
       "password",
@@ -35,8 +36,10 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { email, password, username, phoneNumber } = req.body;
 
     try {
@@ -90,6 +93,7 @@ router.post(
         }
       );
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
@@ -103,6 +107,7 @@ router.post(
 router.post(
   "/login",
   [
+    // validations
     check(
       "password",
       "Please enter a password with 8 or more characters"
@@ -115,8 +120,10 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { password, username } = req.body;
 
     try {
@@ -150,6 +157,7 @@ router.post(
         }
       );
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
