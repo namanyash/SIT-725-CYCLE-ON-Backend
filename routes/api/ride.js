@@ -12,6 +12,7 @@ const User = require("../../models/User");
 router.put(
   "/bookRide",
   [
+    // validations
     check(
       "startLocationName",
       "Please enter a locationName with 4 or more characters"
@@ -26,8 +27,10 @@ router.put(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { startLocationName, endLocationName, bikeId } = req.body;
     try {
       let startLocation = await CycleonLocationModel.findOne({
@@ -68,12 +71,13 @@ router.put(
           .status(400)
           .json({ errors: [{ msg: `Balance less than $10` }] });
       }
-
+      // remove the bike from start location
       let location_updated = await CycleonLocationModel.findOneAndUpdate(
         { locationName: startLocationName },
         { $pull: { bikes: { _id: bikeId } } },
         { new: true, passRawResult: true }
       );
+      // check if bike was available during the booking
       if (startLocation.bikes.length == location_updated.bikes.length) {
         return res.status(400).json({
           errors: [
@@ -85,7 +89,7 @@ router.put(
       }
 
       const bike = startLocation.bikes.find((bike) => bike._id === bikeId);
-      console.log(bike);
+      // add bike details to user's active ride
       user = await User.findByIdAndUpdate(
         req.user.id,
         {
@@ -103,6 +107,7 @@ router.put(
 
       return res.send({ startLocation: location_updated, user });
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
@@ -122,6 +127,7 @@ router.put("/endRide", auth, async (req, res) => {
         .json({ errors: [{ msg: `User has no active rides` }] });
     }
     let ride = user.activeRide;
+    // add bike from user's active ride to end location
     location = await CycleonLocationModel.findOneAndUpdate(
       { locationName: ride.endLocation },
       {
@@ -135,6 +141,7 @@ router.put("/endRide", auth, async (req, res) => {
       },
       { new: true, passRawResult: true }
     );
+    // add ride to user's ride history
     ride.endTime = Date.now();
     ride.fare = (
       ((ride.endTime - ride.startTime) * process.env.RATE_PER_HOUR) /

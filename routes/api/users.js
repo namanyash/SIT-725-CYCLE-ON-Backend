@@ -12,6 +12,7 @@ const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
+// create a Gmail transporter to allow app to send emails
 let transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -34,6 +35,7 @@ transporter.verify((err, succ) => {
 router.post(
   "/register",
   [
+    // validations
     check("firstName", "Frist name is required").not().isEmpty(),
     check("lastName", "Frist name is required").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
@@ -56,8 +58,10 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { firstName, lastName, email, password, username, phoneNumber } =
       req.body;
 
@@ -101,18 +105,20 @@ router.post(
         rideHistory: [],
       });
 
+      // encrypt password
       const salt = await bcrypt.genSalt(10);
-
       user.password = await bcrypt.hash(password, salt);
 
       await user.save();
 
+      // create payload for jwt token
       const payload = {
         user: {
           id: user.id,
         },
       };
 
+      // create and return a jwt token
       jwt.sign(
         payload,
         config.get("jwtSecret"),
@@ -123,6 +129,7 @@ router.post(
         }
       );
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
@@ -136,6 +143,7 @@ router.post(
 router.post(
   "/loginUP",
   [
+    // validations
     check(
       "password",
       "Please enter a password with 8 or more characters"
@@ -148,8 +156,10 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { password, username } = req.body;
 
     try {
@@ -167,12 +177,14 @@ router.post(
           .json({ errors: [{ msg: "Invalid Credentials" }] });
       }
 
+      // create payload for jwt token
       const payload = {
         user: {
           id: user.id,
         },
       };
 
+      // create and return a jwt token
       jwt.sign(
         payload,
         config.get("jwtSecret"),
@@ -183,6 +195,7 @@ router.post(
         }
       );
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
@@ -205,6 +218,7 @@ router.get("/getUser", auth, async (req, res) => {
 router.put(
   "/addBalance",
   [
+    // validations
     check("valueToAdd", "No Value Provided").not().isEmpty(),
     check("valueToAdd", "Value can only be a positive integer").isInt({
       min: 0,
@@ -214,8 +228,10 @@ router.put(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { valueToAdd } = req.body;
     const user = await User.findOneAndUpdate(
       { _id: req.user.id },
@@ -233,6 +249,7 @@ router.put(
 router.put(
   "/withdrawBalance",
   [
+    // validations
     check("valueToSubtract", "No Value Provided").not().isEmpty(),
     check("valueToSubtract", "Value can only be a positive integer").isInt({
       min: 0,
@@ -242,8 +259,10 @@ router.put(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { valueToSubtract } = req.body;
     let user = await User.findById(req.user.id).select("balance");
     if (user.balance < valueToSubtract) {
@@ -267,14 +286,17 @@ router.put(
 router.post(
   "/requestPasswordReset",
   [
+    // validations
     check("redirectUrl", "Redirect URL Empty").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { redirectUrl, email } = req.body;
 
     try {
@@ -284,8 +306,11 @@ router.post(
           .status(400)
           .json({ errors: [{ msg: "Email not registered" }] });
       }
+      // create a random string for email
       const resetString = uuidv4() + user._id;
+      // delete existing password request for this user, if any
       await PasswordReset.deleteMany({ userId: user._id });
+      // create an email
       const mailOptions = {
         from: process.env.AUTH_EMAIL,
         to: email,
@@ -294,9 +319,10 @@ router.post(
           redirectUrl + "user/verify/" + user._id + "/" + resetString
         }>here</a> to proceed.</p>`,
       };
+      // encrypt the password reset string
       const salt = await bcrypt.genSalt(10);
-
       const encryptedResetString = await bcrypt.hash(resetString, salt);
+      // new password reset request
       const newPasswordReset = new PasswordReset({
         userId: user._id,
         username: user.username,
@@ -304,10 +330,13 @@ router.post(
         createdAt: Date.now(),
         expiresAt: Date.now() + 3600000,
       });
+      // save request
       newPasswordReset.save();
+      // send email
       const mail = transporter.sendMail(mailOptions);
       return res.json({ msg: "Password Reset Email Sent" });
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
@@ -321,6 +350,7 @@ router.post(
 router.post(
   "/resetPassword",
   [
+    // validations
     check("userId", "User Id Cannot be empty").not().isEmpty(),
     check("resetString", "Reset String Cannot Be Empty").not().isEmpty(),
     check(
@@ -331,8 +361,10 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { userId, resetString, newPassword } = req.body;
     try {
       let passwordReset = await PasswordReset.find({ userId });
@@ -369,6 +401,7 @@ router.post(
       await PasswordReset.deleteMany({ userId: userId });
       res.send({ msg: "Password Updated Successfully" });
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }

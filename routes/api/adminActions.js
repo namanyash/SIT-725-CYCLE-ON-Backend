@@ -12,6 +12,7 @@ const idGenerator = require("../../helper/idGenerator");
 router.post(
   "/addLocation",
   [
+    // validations
     check(
       "locationName",
       "Please include a location name with 4 or more characters"
@@ -22,8 +23,11 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { locationName, coordinates, bikes } = req.body;
 
     try {
@@ -51,6 +55,7 @@ router.post(
 
       return res.json(location);
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
@@ -64,6 +69,7 @@ router.post(
 router.post(
   "/addBike",
   [
+    // validations
     check(
       "name",
       "Please enter a bike name with 4 or more characters"
@@ -81,8 +87,10 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { name, description, locationName } = req.body;
 
     try {
@@ -103,6 +111,7 @@ router.post(
       );
       res.send(location);
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
@@ -116,6 +125,7 @@ router.post(
 router.delete(
   "/deleteBike",
   [
+    // validations
     check(
       "locationName",
       "Please enter a locationName with 4 or more characters"
@@ -126,8 +136,10 @@ router.delete(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Show error if validations failed
       return res.status(400).json({ errors: errors.array() });
     }
+    // get required fields from request body
     const { locationName, bikeId } = req.body;
     try {
       let location = await CycleonLocationModel.findOne({ locationName });
@@ -150,6 +162,7 @@ router.delete(
       }
       res.send(location_updated);
     } catch (err) {
+      // catch and log errors in console. Send 500 response
       console.error(err.message);
       return res.status(500).send("Server Error");
     }
