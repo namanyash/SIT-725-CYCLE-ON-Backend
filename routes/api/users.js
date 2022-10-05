@@ -95,13 +95,7 @@ router.post(
         username,
         phoneNumber,
         balance: 0,
-        activeRide: {
-          startTime: null,
-          startLocation: null,
-          bikeName: null,
-          bikeId: null,
-          bikeDescription: null,
-        },
+        activeRide: {},
         rideHistory: [],
       });
 
@@ -194,6 +188,58 @@ router.post(
           return res.json({ token });
         }
       );
+    } catch (err) {
+      // catch and log errors in console. Send 500 response
+      console.error(err.message);
+      return res.status(500).send("Server Error");
+    }
+  }
+);
+
+// @route       DELETE /api/users/deleteUser
+// @desc        Login users to the app using username and password
+// @access      Private
+// @parameters  username(String), password(String)
+router.delete(
+  "/deleteUser",
+  [
+    // validations
+    check(
+      "password",
+      "Please enter a password with 8 or more characters"
+    ).isLength({ min: 8 }),
+    check(
+      "username",
+      "Please enter a username with 4 or more characters"
+    ).isLength({ min: 4 }),
+    auth,
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // Show error if validations failed
+      return res.status(400).json({ errors: errors.array() });
+    }
+    // get required fields from request body
+    const { password, username } = req.body;
+
+    try {
+      let user = await User.findOne({ username });
+      if (!user) {
+        return res
+          .status(400)
+          .json({ errors: [{ msg: "Invalid Credentials" }] });
+      }
+
+      isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res
+          .status(400)
+          .json({ errors: [{ msg: "Invalid Credentials" }] });
+      }
+
+      await User.deleteMany({ username: username });
+      return res.status(500).send({ msg: `User ${username} deleted` });
     } catch (err) {
       // catch and log errors in console. Send 500 response
       console.error(err.message);
