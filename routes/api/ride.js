@@ -100,6 +100,8 @@ router.put(
             startLocation: startLocationName,
             bikeName: bike.name,
             endLocation: endLocationName,
+            startLocationCoordinates: startLocation.coordinates,
+            endLocationCoordinates: endLocation.coordinates,
           },
         },
         { new: true }
@@ -152,14 +154,7 @@ router.put("/endRide", auth, async (req, res) => {
       {
         $push: { rideHistory: ride },
         $inc: { balance: -ride.fare },
-        activeRide: {
-          startTime: null,
-          bikeId: null,
-          description: null,
-          startLocation: null,
-          bikeName: null,
-          endLocation: null,
-        },
+        activeRide: null,
       },
       { new: true }
     ).select("-password");

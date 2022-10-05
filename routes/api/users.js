@@ -95,13 +95,7 @@ router.post(
         username,
         phoneNumber,
         balance: 0,
-        activeRide: {
-          startTime: null,
-          startLocation: null,
-          bikeName: null,
-          bikeId: null,
-          bikeDescription: null,
-        },
+        activeRide: null,
         rideHistory: [],
       });
 
