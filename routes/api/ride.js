@@ -60,7 +60,7 @@ router.put(
       }
 
       let user = await User.findById(req.user.id).select("activeRide balance");
-      if (user && user.activeRide && user.activeRide.bikeId) {
+      if (user && user.activeRide) {
         return res
           .status(400)
           .json({ errors: [{ msg: `User Already has an active ride.` }] });
